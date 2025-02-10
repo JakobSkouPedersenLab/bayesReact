@@ -55,9 +55,9 @@ build_seq_list <- function(seq_in, out_path = "./", gene_id = "gsym", min_length
       if (requireNamespace("dplyr", quietly = TRUE) == F) {
         stop("Please ensure to have the 'dplyr' package installed when using the function build_seq_list() with a fasta file as input and one_seq_per_gene_id = TRUE.")
       }
-      seqs <- seqs %>% group_by(gid) %>%
-        filter(nchar == max(nchar)) %>%
-        slice(1) %>% ungroup()
+      seqs <- seqs %>% dplyr::group_by(gid) %>%
+        dplyr::filter(nchar == max(nchar)) %>%
+        dplyr::slice(1) %>% dplyr::ungroup()
     }
     # Remove sequences with extremely short and long lengths (default is min_length < 20 and  max_length > 10000)
     seqs <- seqs[seqs$nchar > min_length & seqs$nchar < max_length,]

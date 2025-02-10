@@ -197,7 +197,7 @@ bayesReact_parallel <- function(lst_data, out_path, out_name = "motif_activity",
   }
   if (posterior_approx == "Laplace"){
     t <- t/2
-    mem <- 3 + as.integer(samples_per_partition/500)
+    mem <- 2 + as.integer(samples_per_partition/500)
   }
   # save partition files
   cat("Saving temporary data partitions and submitting ", length(part_end), " jobs.", "\n", sep="", file = logs_con, append = T)
