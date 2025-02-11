@@ -29,8 +29,10 @@ fit_motif_model <- function(input, model, model_type = "bayesReact", output_type
                             iterations = 3000, chains = 3, warmup = 500, cores = chains, keep_warmup = F, posterior_approx = "MCMC"){
 
   if (posterior_approx == "Laplace"){
+    a_init <- rnorm(input$C, 0, 1) # avoid init at extreme values
     m <- rstan::optimizing(model,
                            data = input,
+                           init = a_init,
                            hessian = TRUE)
 
     times <- 1
