@@ -32,7 +32,7 @@ construct_motif_model <- function(model = "bayesReact"){
     //priors
     a ~ normal(0, 10);
 
-    //likelihood - n|t ~ multinomial
+    //likelihood - n|a ~ multinomial
     for (c in 1:C) {
       if (a[c] < 0) {
         target += sum_log_l[c] + (-a[c])*sum_log_1_minus_r[c] - K*lbeta(1, 1-a[c]);
