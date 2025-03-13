@@ -17,6 +17,7 @@
 #' The input can be "gsym" (gene symbol, default), "gid" (ensembl gene id), "tid" (ensembl transcript id). Only relevant to specify when using a bioMart file-path as input.
 #' @param seq_min_length integer, minimum sequence length to include in the seqs object and list. Default is 20.
 #' @param seq_max_length integer, maximum sequence length to include in the seqs object and list. Default is 10,000.
+#' @param control_exp numerical vector or matrix used for FC-score ranking, containing expression values for a user-defined control setting(s), matching the row ordering of the 'exp' input (vector) as well as the column ordering (matrix). If NULL (default), the median gene expressions are used instead.
 #' @param approx_motif_prob logical, whether to use a binomial approximation to compute motif probabilities (default is FALSE).
 #' @param cores integer, number of cores to use for parallel processing when computing motif probabilities (default is all available cores).
 #'
@@ -32,7 +33,7 @@
 process_raw_input <- function(exp, seq_data, motifs, out_path = "./",
                               exp_type = "count", save_processed_exp = F, process_all = T,
                               seq_gene_id = "gsym", seq_min_length = 20, seq_max_length = 10000,
-                              approx_motif_prob = F, cores = parallel::detectCores()){
+                              control_exp = NULL, approx_motif_prob = F, cores = parallel::detectCores()){
   # initial checks
   if(is.data.frame(exp) + is.matrix(exp) + is.character(exp) == 0) stop("expression data input should be either a data frame, matrix, or character string specifying an .rds input file" , call. = F)
 
