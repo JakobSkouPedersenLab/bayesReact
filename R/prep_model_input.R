@@ -30,7 +30,11 @@ prep_model_input <- function(in_seq_motif_data, threshold_motif_prob = 1e-10, th
   l_vector <- l_vector/sum(l_vector) # scaled from 0-1
 
   l <- matrix(NA, nrow = nr_seqs, ncol = nr_obs)
-  l[, 1:nr_obs] <- l_vector
+  if(nr_obs == 1){
+    l[, 1] <- l_vector
+  } else{
+    l[, 1:nr_obs] <- l_vector
+  }
 
   # Order seqs based on FC for each sample/cell
   l <- lapply(1:nr_obs, function(c) l[in_seq_motif_data$FC_rank[,c],c])
@@ -54,10 +58,10 @@ prep_model_input <- function(in_seq_motif_data, threshold_motif_prob = 1e-10, th
     N = nr_seqs +1,
     K = dim(s)[[1]],
     C = nr_obs,
-    l = l[,1:nr_obs],
-    L = L[,1:nr_obs],
-    s = s[,1:nr_obs],
-    n = n[,1:nr_obs]
+    l = l[,1:nr_obs, drop = F],
+    L = L[,1:nr_obs, drop = F],
+    s = s[,1:nr_obs, drop = F],
+    n = n[,1:nr_obs, drop = F]
   )
 
   ########## generate model input data ##########

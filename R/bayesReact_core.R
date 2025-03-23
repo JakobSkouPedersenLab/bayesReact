@@ -133,7 +133,9 @@ bayesReact_core <- function(lst_data, threshold_motif_prob = 1e-10, threshold_mo
     if(!identical(rownames(FC_rank), names(motif_probs))) stop("rownames(FC_rank) and names(motif_probs) are not identical. Please check if the same gene IDs/names are used?" , call. = F)
 
     # Define STAN model
-    model_stan <- bayesReact::construct_motif_model(model = model)
+    if(ncol(FC_rank) != 1){ # Handles dim issues, when C = 1
+      model_stan <- bayesReact::construct_motif_model(model = model)
+    } else{model_stan <- bayesReact::construct_motif_model(model = "BF")}
     # Fit model for motif
     act_motif <- act_motif_m(in_seq_motif_data = list(FC_rank = FC_rank, motif_probs = motif_probs, motif_counts = motif_counts), "motif")
 
@@ -192,7 +194,9 @@ bayesReact_core <- function(lst_data, threshold_motif_prob = 1e-10, threshold_mo
 
   ## Estimate activity for each motif m ##
   # Define STAN model
-  model_stan <- bayesReact::construct_motif_model(model = model)
+  if(ncol(FC_rank) != 1){ # Handles dim issues, when C = 1
+    model_stan <- bayesReact::construct_motif_model(model = model)
+  } else{model_stan <- bayesReact::construct_motif_model(model = "BF")}
 
   # Fit model for each motif m
   act_motif <- lapply(motif_names, function(m) act_motif_m(in_seq_motif_data = list(FC_rank = FC_rank, motif_probs = motif_probs[,m], motif_counts = motif_counts[,m]), motif = m))
