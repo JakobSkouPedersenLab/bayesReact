@@ -44,18 +44,19 @@ motif_prob <- function(motifs, seqs, seqlist, paths = T, binom_approx = F, cores
 
   # Extract non-overlapping motif counts for each sequence
   if (include_counts) {
-    motif_counts <- do.call(cbind, parallel::mclapply(motifs, function(x) Regmex:::n.obs.mot(x, seqlist, overlap =F), mc.cores = cores))
+    motif_counts <- do.call(cbind, parallel::mclapply(motifs, function(x) Regmex::n.obs.mot(x, seqlist, overlap =F), mc.cores = cores))
     colnames(motif_counts) <- motifs
     rownames(motif_counts) <- seqs$gid # match sequence and expression names/gene IDs
   }
 
   if (binom_approx == F) {
     # Generate state-space matrix (used to construct markov chain; consisting of initial state and transition probabilities)
-    patterns <- parallel::mclapply(motifs, function(x) Regmex:::pat.con(x, overlap = F), mc.cores = cores)
+    pat.con <- utils::getFromNamespace("pat.con", "Regmex")
+    patterns <- parallel::mclapply(motifs, function(x) pat.con(x, overlap = F), mc.cores = cores)
     names(patterns) <- motifs
 
     # Compute probability of motif occurrence in each sequence
-    motif_probs <- do.call(cbind, parallel::mclapply(patterns, function(x) unlist(lapply(seqlist, function(y) bayesReact:::pd.mrs2(x,y))), mc.cores = cores))
+    motif_probs <- do.call(cbind, parallel::mclapply(patterns, function(x) unlist(lapply(seqlist, function(y) bayesReact::pd_mrs2(x,y))), mc.cores = cores))
     colnames(motif_probs) <- motifs
     rownames(motif_probs) <- seqs$gid # match sequence and expression names/gene IDs
 

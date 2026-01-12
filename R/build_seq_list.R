@@ -9,6 +9,7 @@
 #' @param one_seq_per_gene_id logical, if TRUE (default), only the longest sequence per gene will be included in the seqs object if a FASTA file is provided. Setting this parameter to FALSE is relevant when considering multiple transcripts per gene or when performing manual filtering of sequences.
 #'
 #' @importFrom dplyr %>%
+#' @importFrom rlang .data
 #' @return Saves seqs and seqList objects as .rds files in the specified out_path.
 #' @export
 #'
@@ -55,7 +56,7 @@ build_seq_list <- function(seq_in, out_path = "./", gene_id = "gsym", min_length
       if (requireNamespace("dplyr", quietly = TRUE) == F) {
         stop("Please ensure to have the 'dplyr' package installed when using the function build_seq_list() with a fasta file as input and one_seq_per_gene_id = TRUE.")
       }
-      seqs <- seqs %>% dplyr::group_by(gid) %>%
+      seqs <- seqs %>% dplyr::group_by(.data$gid) %>%
         dplyr::filter(nchar == max(nchar)) %>%
         dplyr::slice(1) %>% dplyr::ungroup()
     }

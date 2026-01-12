@@ -51,11 +51,9 @@ bayesReact_core <- function(lst_data, threshold_motif_prob = 1e-10, threshold_mo
     if (!(model %in% c("bayesReact", "BF", "bayesReact_2param"))) stop("model must be either \"bayesReact\" or \"BF\"", call. = F)
 
     if (!(posterior_approx %in% c("MCMC", "Laplace"))) {
-      cat("Error: \'posterior_approx\' must be either \"MCMC\" or \"Laplace\"\n", file = logs_con, append = T)
       stop("posterior_approx must be either \"MCMC\" or \"Laplace\"", call. = F)
     }
     if (posterior_approx == "Laplace" & model != "bayesReact" & !(output_type %in% c("activity", "full_model"))) {
-      cat("Error: Laplace approximation only works with the \"bayesReact\" model specification and \"activity\" or \"full_model\" output\n", file = logs_con, append = T)
       stop("Laplace approximation only works with the \"bayesReact\" model specification and \"activity\" or \"full_model\" output", call. = F)
     }
 
@@ -170,7 +168,7 @@ bayesReact_core <- function(lst_data, threshold_motif_prob = 1e-10, threshold_mo
     }
     # Check for duplicated motif names
     if(T %in% duplicated(colnames(motif_probs))){
-      cat("\nWarning: Duplicated motif names detected. Using row numbers as column names for motif_probs & motif_counts. \n\n", file = logs_con, append = T)
+      cat("\nWarning: Duplicated motif names detected. Using row numbers as column names for motif_probs & motif_counts. \n\n")
       colnames(motif_probs) <- 1:ncol(motif_probs)
       colnames(motif_counts) <- 1:ncol(motif_counts)
     }

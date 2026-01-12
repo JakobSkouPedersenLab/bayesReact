@@ -59,7 +59,7 @@ process_raw_input <- function(exp, seq_data, motifs, out_path = "./",
       # check overlap in sequences between expression and sequence data
       if (length(intersect(seqs$gid, rownames(exp)))/length(rownames(exp)) < 0.5) stop("Less than 50% of the genes in the expression data have a matching sequences in the provided sequence data. Please check if the same gene IDs/names are used?" , call. = F)
       cat(paste0(length(intersect(seqs$gid, rownames(exp)))/length(rownames(exp))*100, "% of genes in the expression data have a matching sequences in the provided sequence data. ",
-                   length(rownames(exp) - length(intersect(seqs$gid, rownames(exp))), " genes will be removed from the expression data and fold-change calculation. \n")))
+                   length(rownames(exp)) - length(intersect(seqs$gid, rownames(exp))), " genes will be removed from the expression data and fold-change calculation. \n"))
 
       # save seqs and seq list objects
       saveRDS(seqs, file = paste0(out_path, "seqs.rds"))
@@ -77,7 +77,7 @@ process_raw_input <- function(exp, seq_data, motifs, out_path = "./",
       # check overlap in sequences between expression and sequence data
       if (length(intersect(seqs$gid, rownames(exp)))/length(rownames(exp)) < 0.5) stop("Less than 50% of the genes in the expression data have a matching sequences in the provided sequence data. Please check if the same gene IDs/names are used?" , call. = F)
       print(paste0(length(intersect(seqs$gid, rownames(exp)))/length(rownames(exp))*100, "% of genes in the expression data have a matching sequences in the provided sequence data. ",
-                   length(rownames(exp) - length(intersect(seqs$gid, rownames(exp))), " genes will be removed from the expression data and fold-change calculation.")))
+                   length(rownames(exp)) - length(intersect(seqs$gid, rownames(exp))), " genes will be removed from the expression data and fold-change calculation."))
 
       # check that paths are given in correct order
       if (!is.data.frame(seqs)) stop("seq_data[1] input path should be to a data frame, please check that paths to sequence and sequence list objects haven't been swapped.", call. = F)

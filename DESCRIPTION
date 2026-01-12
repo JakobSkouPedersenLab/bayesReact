@@ -17,17 +17,17 @@ BugReports: https://github.com/astamr/bayesReact/issues
 Depends: 
     R (>= 2.10)
 Imports: 
-    BH,
+    dplyr,
     expm,
     parallel,
     Regmex (>= 1.0),
+    rlang,
     rstan
 Suggests:
     bigmemory,
     Biostrings,
     bridgesampling,
     codetools,
-    dplyr,
     stringr
 Remotes: 
     muhligs/Regmex

@@ -4,14 +4,16 @@
 \alias{rank_seq}
 \title{Rank sequences based on fold-change (FC) score}
 \usage{
-rank_seq(exp, data_type = "count", path = NULL)
+rank_seq(exp, data_type = "count", path = NULL, control_exp = NULL)
 }
 \arguments{
-\item{exp}{Numerical gene expression (or other relevant measure) matrix (Rows = genes, columns = samples). Input should NOT be log-transformed. Examples include raw counts (default), CPM, or TPM values.}
+\item{exp}{numerical gene expression (or other relevant measure) matrix (Rows = genes, columns = samples). Input should NOT be log-transformed. Examples include raw counts (default), CPM, or TPM values.}
 
 \item{data_type}{character, type of data to normalize and/or scale. Input can be "count" (default), "CPM" (counts per million; TPM can also be used), or "norm_scale_exp" (data already processed using norm_scale_seq()).}
 
 \item{path}{character, directory to save .rds file in. Default is NULL, returning the fold-change score matrix.}
+
+\item{control_exp}{numerical vector or matrix containing expression values for a user-defined control setting(s), matching the row ordering of the 'exp' input (vector) as well as the column ordering (matrix). If NULL (default), the median gene expressions are used instead.}
 }
 \value{
 Sample/cell specific rank for each sequence, based on the fold-change (FC) score. Sequences with highest FC scores have the lowest ranks (thus the rank is decreasing).

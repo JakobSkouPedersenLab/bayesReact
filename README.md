@@ -1,6 +1,8 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
 <p align="center">
+
 <img src="inst/art/logo.png" alt="Logo" style="width: 50%;" />
 </p>
 
@@ -15,6 +17,7 @@ Stan](https://img.shields.io/badge/language-Stan-BC1B28?style=flat&labelColor=gr
 [![License: GPL
 v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue)](https://www.tidyverse.org/lifecycle/)
+[![R-CMD-check](https://github.com/astamr/bayesReact/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/astamr/bayesReact/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 bayesReact (BAYESian modeling of Regular Expression ACTivity) is a tool
@@ -58,10 +61,6 @@ installed through Conda:
 In an R session you can then install Regmex and bayesReact:
 
 ``` r
-if (!requireNamespace("devtools", quietly = TRUE)) {
-    install.packages("devtools")
-}
-
 devtools::install_github("muhligs/Regmex", dependencies = F)
 devtools::install_github("astamr/bayesReact", dependencies = F)
 ```
@@ -93,6 +92,7 @@ Below is an overview of all the functions and scripts included in the R
 package and their interconnections.
 
 <p align="center">
+
 <img src="inst/art/bayesReact_functions.png" alt="bayes_fun" />
 </p>
 
