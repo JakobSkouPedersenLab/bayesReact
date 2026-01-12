@@ -40,6 +40,11 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
+      # Manually added lines 44-46 due to 'Regmex' not stating expm as a dependency. This ensures 'expm' is installed beforehand.
+      - name: Preinstall expm (needed to build Regmex)
+        run: install.packages("expm")
+        shell: Rscript {0}
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
