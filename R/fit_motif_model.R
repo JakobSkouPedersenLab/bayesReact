@@ -11,23 +11,24 @@
 #' @param CI credible interval (CI) to be returned for activity estimates. Default is 80% CI: c(0.10, 0.90).
 #' @param iterations number of iterations to be run by the MCMC sampler.
 #' @param chains number of independent MCMC chains to be run.
-#' @param warmup initial iterations to be discarded for each chain as warm-up/burn-in.
+#' @param warmup initial iterations to be discarded for each chain as warm-up.
 #' @param cores number of cores, default is equal to the number of chains (which is the maximum number of cores that can be utilized by STAN's MCMC sampler). Alternatively, consider parallel::detectCores().
 #' @param keep_warmup whether to keep the warm-up iterations or not.
-#' @param posterior_approx algorithm for approximating the posterior distribution: "MCMC" (default) or "Laplace" (faster but slightly less accurate approximation).
+#' @param posterior_approx algorithm for approximating the posterior distribution: "MCMC" (default) or "Laplace" (faster but slightly less accurate uncertainties).
 #'
-#' @return Activity estimates in a format specified by output_type.
+#' @return activity estimates in a format specified by output_type.
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' my_activity <- fit_motif_model(my_data)
-#' # returns df with activity estimates, CIs, and simple diagnostics
+#' # returns dataframe with activity estimates, CIs, and simple diagnostics
 #' }
 #'
-fit_motif_model <- function(input, model, model_type = "bayesReact", output_type = "activity_summary", CI = c(0.10, 0.90), #99% CI = c(0.005, 0.995),
+fit_motif_model <- function(input, model, model_type = "bayesReact", output_type = "activity_summary", CI = c(0.10, 0.90),
                             iterations = 3000, chains = 3, warmup = 500, cores = chains, keep_warmup = F, posterior_approx = "MCMC"){
 
+  ## Laplace approximation of posterior distribution ##
   if (posterior_approx == "Laplace"){
     a_init <- stats::rnorm(1, 0, 1) # avoid init at extreme values
     m <- rstan::optimizing(model,
@@ -49,7 +50,7 @@ fit_motif_model <- function(input, model, model_type = "bayesReact", output_type
       times <- times + 1
     }
 
-    # Construct covariance matrix
+    # construct covariance matrix
     hessian_matrix <- m$hessian
     cov_matrix <- solve(-hessian_matrix)
     cat("Succesfull model fit. \n")
@@ -62,7 +63,7 @@ fit_motif_model <- function(input, model, model_type = "bayesReact", output_type
     if (output_type == "activity"){
       return(m_fit_stats$activity)
 
-    } else if (output_type == "full_model") { # Only for single motif
+    } else if (output_type == "full_model") { # only for single motif
       return(m) # returns list object
 
     } else {
@@ -98,7 +99,7 @@ fit_motif_model <- function(input, model, model_type = "bayesReact", output_type
                        show_messages = FALSE,
                        verbose = FALSE, refresh = 0)
 
-  # Handle Segfault issues generated from STAN's memory allocation problem by re-running the MCMC sampler
+  # handle Segfault issues generated from RSTAN's memory allocation problem by re-running the MCMC sampler
   times <- 1
   while (is.null(m)) {
     if (times > 10) {
@@ -129,7 +130,7 @@ fit_motif_model <- function(input, model, model_type = "bayesReact", output_type
   ## If "BF", use bridge sampling to obtain log-marginal likelihoods ##
   if (model_type == "BF") {
     m_logml <- bridgesampling::bridge_sampler(m, silent = T, use_neff = F)$logml
-    uni_logml <- input$sum_log_l #- input$K*lbeta(1, 1) # Note, there is no model parameters to marginalize and the beta(1, 1) density is utilized.
+    uni_logml <- input$sum_log_l #- input$K*lbeta(1, 1) # note, there is no model parameters to marginalize and the beta(1, 1) density is utilized.
     lBF <- m_logml - uni_logml # log BF
   }
 
@@ -143,17 +144,17 @@ fit_motif_model <- function(input, model, model_type = "bayesReact", output_type
 
     if (model_type == "BF"){
       m_fit_stats$lBF <- lBF
-      return(m_fit_stats[,c("mean", "activity", "post_prob", "sd", paste0(CI[1]*100, "%"), paste0(CI[2]*100, "%"), "n_eff", "Rhat", "lBF")]) # returns data-frame with mean posterior activity estimates, log BF, etc.
+      return(m_fit_stats[,c("mean", "activity", "post_prob", "sd", paste0(CI[1]*100, "%"), paste0(CI[2]*100, "%"), "n_eff", "Rhat", "lBF")]) # returns dataframe with mean posterior activity estimates, log BF, etc.
     }
     if (output_type == "activity"){
       return(m_fit_stats$activity)
     }
-    return(m_fit_stats[,c("mean", "activity", "post_prob", "sd", paste0(CI[1]*100, "%"), paste0(CI[2]*100, "%"), "n_eff", "Rhat")]) # returns data-frame with mean posterior activity estimates and credible intervals
+    return(m_fit_stats[,c("mean", "activity", "post_prob", "sd", paste0(CI[1]*100, "%"), paste0(CI[2]*100, "%"), "n_eff", "Rhat")]) # returns dataframe with mean posterior activity estimates and credible intervals
 
   } else if (output_type == "full_posterior") { # Only for single motif
     return(rstan::extract(m, permuted = TRUE, inc_warmup = FALSE, include = TRUE)) # returns list object with MCMC iterations for each parameter and log-likelihood (lp__)
 
-    } else if (output_type == "full_model") { # Only for single motif
+    } else if (output_type == "full_model") { # only for single motif
     return(m) # returns S4 class stanfit object
 
   } else {

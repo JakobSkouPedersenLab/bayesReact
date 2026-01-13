@@ -13,13 +13,13 @@
 #' @examples
 #' # See 'https://github.com/muhligs/miReact'.
 #'
-pd_mrs2 <- function(pattern, seq){ # In miReact, the function is named 'pd.mrs2'.
+pd_mrs2 <- function(pattern, seq){ # in miReact, the function is named 'pd.mrs2'.
   #tm <- Regmex:::transition.matrix(pattern$matrix, seq$freq.mono)
   transition.matrix <- utils::getFromNamespace("transition.matrix", "Regmex")
   tm <- transition.matrix(pattern$matrix, seq$freq.mono)
   finl.st <- pattern$endState
   tm[finl.st,] <- 0
   tm[finl.st,finl.st] <- 1
-  return(1-sum((tm %^% seq$length)[pattern$startState,-finl.st])) # %^% is from the expm package
+  return(1-sum((tm %^% seq$length)[pattern$startState,-finl.st]))
 }
 

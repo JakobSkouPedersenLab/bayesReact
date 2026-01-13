@@ -2,7 +2,7 @@
 #' @description
 #' This function constructs a STAN model object for motif activity inference, and is used by fit_motif_model(), bayesReact_core(), and bayesReact_parallel().
 #'
-#' @param model A character string specifying the model to be used for inference:
+#' @param model a character string specifying the model to be used for inference:
 #' Either "bayesReact" (default) or "BF" (Bayes Factor; when comparing support for the beta model against the uniform null model).
 #'
 #' @return A stanmodel object.
@@ -16,8 +16,8 @@
 construct_motif_model <- function(model = "bayesReact"){
 
   ## Model definitions (STAN code) ##
-  # Core one-parameter model for motif activity inference
-  bayesReact <- 'data {           // default model    ### CONSIDER ADDING M PLATE ###
+  # core one-parameter model for motif activity inference
+  bayesReact <- 'data {           // default model
   int<lower=1> K;                 // number of motif observations
   int<lower=1> C;                 // number of samples or cells
 
@@ -69,8 +69,8 @@ construct_motif_model <- function(model = "bayesReact"){
   }
   '
 
-  # Core two-parameter model for motif activity inference
-  bayesReact_2param <- 'data {           // default model    ### CONSIDER ADDING M PLATE ###
+  # core two-parameter model for motif activity inference
+  bayesReact_2param <- 'data {    // default model
   int<lower=1> K;                 // number of motif observations
   int<lower=1> C;                 // number of samples or cells
 
@@ -79,12 +79,11 @@ construct_motif_model <- function(model = "bayesReact"){
   vector[C] sum_log_1_minus_r;    // precomputed sum log 1-r for each sample
   }
   parameters {
-    vector<lower=0>[C] alpha;                  // shape1 parameter for each sample
-    vector<lower=0>[C] beta;                   // shape2 parameter for each sample
+    vector<lower=0>[C] alpha;     // shape1 parameter for each sample
+    vector<lower=0>[C] beta;      // shape2 parameter for each sample
   }
   model {
     //priors
-    //a ~ normal(0, 10);
     alpha ~ exponential(0.1); // leads to sd = 10
     beta ~ exponential(0.1);
 
@@ -101,13 +100,13 @@ construct_motif_model <- function(model = "bayesReact"){
   }
   '
 
-  # Extended model accounting for target efficiency (e)
+  # extended model accounting for target efficiency (e)
   # ...
 
   # list of models
   model_codes <- list(bayesReact = bayesReact, BF = BF,
                       bayesReact_2param = bayesReact_2param)
 
-  # Construct and return STAN model
+  ## Construct and return STAN model ##
   return(rstan::stan_model(model_code = model_codes[[model]]))
 }

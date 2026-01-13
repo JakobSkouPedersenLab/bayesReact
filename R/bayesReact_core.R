@@ -7,19 +7,19 @@
 #' @param lst_data list containing file paths or data frames, e.g.: list(FC_rank = "./FC_rank_data.rds", motif_probs = "./seqXmot_probs.rds", motif_counts = "./seqXmot_counts.rds").
 #' @param threshold_motif_prob numeric value specifying the minimum threshold used to truncate the probability of observing a motif at least once in a sequence. If set to NULL, no threshold is used.
 #' @param threshold_motif_count integer specifying the maximum threshold used to truncate the number of times a motif is observed in a sequence. If set to NULL, no threshold is used.
-#' @param model A character string specifying the model to be used for inference:
+#' @param model a character string specifying the model to be used for inference:
 #' Either "bayesReact" (default) or "BF" (Bayes Factor; when comparing beta model against the uniform null model).
 #' @param output_type type of output to be returned; either "activity" (only outputs activity score); "activity_summary" (default; outputs activity score, posterior mean and sd for the underlying activity parameter 'a', log P(|a| <= 0 | data), credible intervals, and simple model diagnostics);
 #' "full_posterior" (outputs all MCMC iterations after warm-up period); or "full_model" (returns full stanfit model object). "full_posterior" and "full_model" can only be obtained for a single motif at a time.
 #' @param CI credible interval (CI) to be returned for activity estimates. Default is 80% CI: c(0.10, 0.90).
 #' @param MCMC_iterations number of iterations to be run by the MCMC sampler.
 #' @param MCMC_chains number of independent MCMC chains to be used.
-#' @param MCMC_warmup initial iterations to be discarded for each chain as warm-up/burn-in.
+#' @param MCMC_warmup initial iterations to be discarded for each chain as warm-up.
 #' @param MCMC_cores number of cores, default is equal to the number of chains (which is the maximum number of cores that can be utilized by STAN's MCMC sampler).
 #' Alternatively consider parallel::detectCores().
 #' @param MCMC_keep_warmup whether to keep the warm-up iterations or not.
 #' @param posterior_approx algorithm for approximating the posterior distribution: "MCMC" (default) or "Laplace" (faster but slightly less accurate uncertainties).
-#' Only works with model = "bayesReact" and output_type = "activity" or "full_model".
+#' "Laplace" only works with model = "bayesReact" and output_type = "activity" or "full_model".
 #' @param parallel this parameter should never be changed manually and is used internally by bayesReact_parallel().
 #'
 #' @return Motif activity estimates in a format specified by output_type.
@@ -31,8 +31,8 @@
 #' list(FC_rank = FC_rank, motif_probs = motif_probs, motif_counts = motif_counts))
 #' }
 #'
-bayesReact_core <- function(lst_data, threshold_motif_prob = 1e-10, threshold_motif_count = 2, #!!!!! Consider being able to specify sampler (e.g. MCMC/HMC, vb, pigeons) !!!!!
-                            model = "bayesReact", output_type = "activity_summary", CI = c(0.10, 0.90), #CI = c(0.005, 0.995),
+bayesReact_core <- function(lst_data, threshold_motif_prob = 1e-10, threshold_motif_count = 2,
+                            model = "bayesReact", output_type = "activity_summary", CI = c(0.10, 0.90),
                             MCMC_iterations = 3000, MCMC_chains = 3, MCMC_warmup = 500,
                             MCMC_cores = MCMC_chains, MCMC_keep_warmup = F, posterior_approx = "MCMC", parallel = F) {
   # start logo
@@ -48,7 +48,7 @@ bayesReact_core <- function(lst_data, threshold_motif_prob = 1e-10, threshold_mo
     # check correct input type
     if (!is.list(lst_data)) stop("lst_data must be a list containing file paths (or data frames) in the format provided by bayesReact::process_raw_input():
                                  list(FC_rank = \"./FC_rank_date.rds\", motif_probs = \"./seqXmot_probs.rds\", motif_counts = \"./seqXmot_counts.rds\")", call. = F)
-    if (!(model %in% c("bayesReact", "BF", "bayesReact_2param"))) stop("model must be either \"bayesReact\" or \"BF\"", call. = F)
+    if (!(model %in% c("bayesReact", "BF", "bayesReact_2param"))) stop("model must be either \"bayesReact\", \"BF\", or \"bayesReact_2param\"", call. = F)
 
     if (!(posterior_approx %in% c("MCMC", "Laplace"))) {
       stop("posterior_approx must be either \"MCMC\" or \"Laplace\"", call. = F)
@@ -72,21 +72,20 @@ bayesReact_core <- function(lst_data, threshold_motif_prob = 1e-10, threshold_mo
 
   ## Function to generate input data and fit model for motif m ##
   act_motif_m <- function(in_seq_motif_data, motif){
-    invisible(gc(reset = TRUE, full = TRUE)) # !!!!!!!!!
-    #Sys.sleep(1) # to see if it solves gc() issue
+    invisible(gc(reset = TRUE, full = TRUE)) # Potential solve to RSTAN's gc() issue
 
     # start message
     cat(paste0("Fitting model for \'", motif, "\'. "))
-    # generate input data to evaluate activity of motif m across all samples
+    # generate input data to evaluate activity of motif m across all conditions (samples/cells)
     inlist <- bayesReact::prep_model_input(in_seq_motif_data, threshold_motif_prob = threshold_motif_prob, threshold_motif_count = threshold_motif_count)
 
     # if running in BF mode
     if (model == "BF"){
-      # fit model for each sample in parallel to obtain the sample/cell-specific logml and BF
+      # fit model for each sample in parallel to obtain the condition-specific logml and BF
       BF_out <- parallel::mclapply(1:inlist$C, function(c) bayesReact::fit_motif_model(input = list(C = 1, K = inlist$K, sum_log_l = inlist$sum_log_l[c], sum_log_r = inlist$sum_log_r[c], sum_log_1_minus_r = inlist$sum_log_1_minus_r[c]),
                                                                                        model = model_stan, model_type = "BF", output_type = output_type, CI = CI, iterations = MCMC_iterations, chains = 1, warmup = MCMC_warmup, cores = MCMC_cores,
                                                                                        keep_warmup = MCMC_keep_warmup), mc.cores = MCMC_cores-1)
-      # combine results for all samples
+      # combine results for all conditions
       cat("Succesfull model fit. \n")
 
       # if running bayesReact_parallel(), check if new motif partition needs to be loaded
@@ -115,8 +114,8 @@ bayesReact_core <- function(lst_data, threshold_motif_prob = 1e-10, threshold_mo
     return(m_out)
   }
 
-  if (is.vector(motif_probs) & !parallel | isTRUE(tryCatch(ncol(motif_probs) == 1)) & !parallel){ # When only one motif is provided; Enables returning full posterior or model object.
-    if (model == "BF" & requireNamespace("bridgesampling", quietly = TRUE) == F) stop("The bridgesampling package is required for model = \"BF\". Please install bridgesampling and try again.", call. = F)
+  if (is.vector(motif_probs) & !parallel | isTRUE(tryCatch(ncol(motif_probs) == 1)) & !parallel){ # when only one motif is provided; enables returning full posterior or model object.
+    if (model == "BF" & requireNamespace("bridgesampling", quietly = TRUE) == F) stop("The bridgesampling package is required for model = \"BF\". Please install the package and try again.", call. = F)
     if(!is.vector(motif_probs)){
       motif_probs <- motif_probs[,1]
       motif_counts <- motif_counts[,1]
@@ -124,17 +123,16 @@ bayesReact_core <- function(lst_data, threshold_motif_prob = 1e-10, threshold_mo
     if (length(intersect(names(motif_probs), rownames(FC_rank))) != length(rownames(FC_rank))) stop(paste0(length(rownames(FC_rank)) - length(intersect(names(motif_probs), rownames(FC_rank))), " genes/transcripts in the fold-change data do not have a matching entry in the provided motif probs/counts data. Please check if the same gene IDs/names are used?") , call. = F)
     # match cols of motif_probs and motif_counts to rows of FC_rank
     gene_set <- rownames(FC_rank)
-    #FC_rank <- FC_rank[gene_set,]
     motif_probs <- motif_probs[gene_set]
     motif_counts <- motif_counts[gene_set]
     # check if rownames of FC_rank and names for motif_probs are identical
     if(!identical(rownames(FC_rank), names(motif_probs))) stop("rownames(FC_rank) and names(motif_probs) are not identical. Please check if the same gene IDs/names are used?" , call. = F)
 
-    # Define STAN model
-    if(ncol(FC_rank) != 1){ # Handles dim issues, when C = 1
+    # define STAN model
+    if(ncol(FC_rank) != 1){ # handles dim issues, when C = 1
       model_stan <- bayesReact::construct_motif_model(model = model)
     } else{model_stan <- bayesReact::construct_motif_model(model = "BF")}
-    # Fit model for motif
+    # fit model for motif
     act_motif <- act_motif_m(in_seq_motif_data = list(FC_rank = FC_rank, motif_probs = motif_probs, motif_counts = motif_counts), "motif")
 
     if (output_type == "activity_summary"){rownames(act_motif) <- colnames(FC_rank)}
@@ -146,8 +144,8 @@ bayesReact_core <- function(lst_data, threshold_motif_prob = 1e-10, threshold_mo
 
   if (!parallel){
     ## Match motif_probs and motif_counts to FC_rank ##
-    if (model == "BF" & requireNamespace("bridgesampling", quietly = TRUE) == F) stop("The bridgesampling package is required for model = \"BF\". Please install bridgesampling and try again.", call. = F)
-    #
+    if (model == "BF" & requireNamespace("bridgesampling", quietly = TRUE) == F) stop("The bridgesampling package is required for model = \"BF\". Please install the package and try again.", call. = F)
+
     # check if rows contain motifs instead of genes
     if (is.null(rownames(motif_probs))) {
       cat("\nWarning: No rownames are provided. Row numbers are used instead. \n")
@@ -166,7 +164,7 @@ bayesReact_core <- function(lst_data, threshold_motif_prob = 1e-10, threshold_mo
       colnames(motif_probs) <- 1:ncol(motif_probs)
       colnames(motif_counts) <- 1:ncol(motif_counts)
     }
-    # Check for duplicated motif names
+    # check for duplicated motif names
     if(T %in% duplicated(colnames(motif_probs))){
       cat("\nWarning: Duplicated motif names detected. Using row numbers as column names for motif_probs & motif_counts. \n\n")
       colnames(motif_probs) <- 1:ncol(motif_probs)
@@ -176,7 +174,6 @@ bayesReact_core <- function(lst_data, threshold_motif_prob = 1e-10, threshold_mo
     if (length(intersect(rownames(motif_probs), rownames(FC_rank))) != length(rownames(FC_rank))) stop(paste0(length(rownames(FC_rank)) - length(intersect(rownames(motif_probs), rownames(FC_rank))), " genes/transcripts in the fold-change data do not have a matching entry in the provided motif probs/counts data. Please check if the same gene IDs/names are used?") , call. = F)
     # match rows of motif_probs and motif_counts to rows of FC_rank
     gene_set <- rownames(FC_rank)
-    #FC_rank <- FC_rank[gene_set,]
     motif_probs <- motif_probs[gene_set,,drop=F]
     motif_counts <- motif_counts[gene_set,,drop=F]
     # check if rownames of FC_rank and motif_probs are identical
@@ -185,20 +182,20 @@ bayesReact_core <- function(lst_data, threshold_motif_prob = 1e-10, threshold_mo
     motif_names <- colnames(motif_probs)
   }
 
-  # Threshold for motif count
+  # threshold for motif count
   if(is.integer(threshold_motif_count)){
     motif_counts[motif_counts > threshold_motif_count] <- threshold_motif_count
   }
 
   ## Estimate activity for each motif m ##
-  # Define STAN model
-  if(ncol(FC_rank) != 1){ # Handles dim issues, when C = 1
+  # define STAN model
+  if(ncol(FC_rank) != 1){ # handles dim issues, when C = 1
     model_stan <- bayesReact::construct_motif_model(model = model)
   } else{model_stan <- bayesReact::construct_motif_model(model = "BF")}
 
-  # Fit model for each motif m
+  # fit model for each motif m
   act_motif <- lapply(motif_names, function(m) act_motif_m(in_seq_motif_data = list(FC_rank = FC_rank, motif_probs = motif_probs[,m], motif_counts = motif_counts[,m]), motif = m))
-  # Generate output matrices
+  # generate output matrices
   if (output_type == "activity_summary"){
     motif_a_mean <- do.call(cbind, lapply(act_motif, function(x) x$mean))
     motif_a_sd <- do.call(cbind, lapply(act_motif, function(x) x$sd))
@@ -211,7 +208,7 @@ bayesReact_core <- function(lst_data, threshold_motif_prob = 1e-10, threshold_mo
     if (model == "BF"){
       motif_model_lBF <- do.call(cbind, lapply(act_motif, function(x) x$lBF))
     }
-    # Add row and col names
+    # add row and col names
     rownames(motif_a_mean) <- colnames(FC_rank)
     colnames(motif_a_mean) <- motif_names
     rownames(motif_a_sd) <- colnames(FC_rank)
@@ -232,7 +229,7 @@ bayesReact_core <- function(lst_data, threshold_motif_prob = 1e-10, threshold_mo
       rownames(motif_model_lBF) <- colnames(FC_rank)
       colnames(motif_model_lBF) <- motif_names
     }
-    # Generate output list with matrices
+    # generate output list with matrices
     if(model == "BF"){
       out_matrices <- list(motif_activity = motif_activity, motif_post_prob = motif_post_prob, motif_a_mean = motif_a_mean, motif_a_sd = motif_a_sd,
                            motif_a_CI_lower = motif_a_CI_lower, motif_a_CI_upper = motif_a_CI_upper,
@@ -246,14 +243,14 @@ bayesReact_core <- function(lst_data, threshold_motif_prob = 1e-10, threshold_mo
 
   if (output_type == "activity"){
     motif_activity <- do.call(cbind, act_motif)
-    # Add row and col names
+    # add row and col names
     rownames(motif_activity) <- colnames(FC_rank)
     colnames(motif_activity) <- motif_names
-    # Generate output list with matrices
+    # generate output list with matrices
     out_matrices <- list(motif_activity = motif_activity)
   }
 
-  # Return matrices
+  # return matrices
   cat("Done.\n")
   return(out_matrices)
 }

@@ -1,27 +1,28 @@
 #' Function to process raw input data needed to run bayesReact
 #' @description
-#' The function processes raw expression, motif and sequence data, in order to produce sequence ranks and motif probabilities needed for numerical sequence representation.
+#' The function processes raw expression, motif, and sequence data in order to produce sequence ranks and motif probabilities needed for numerical sequence representation.
 #' The processed data is used by bayesReact to evaluate motif distribution across the expression (or other continuous measure) ranked sequences.
-#' The function calls the following sub-functions: norm_scale_seq, rank_seq, build_seq_list, and motif_prob, which can also be run individually.
+#' The function calls the following sub-functions: norm_scale_seq(), rank_seq(), build_seq_list(), and motif_prob(), which can also be run individually.
 #'
-#' @param exp numerical gene expression (or other relevant measure) matrix (rows = genes, columns = samples) or character string specifying file path to expression data (saved in .rds format). Input should NOT be log-transformed. Examples include raw counts (default), CPM, or TPM values.
-#' @param seq_data character string, data frame or vector; path to a bioMart output-file (decompressed .fasta file); a data frame containing gene_name/gene_ID, sequences and sequence length;
-#' or a character vector of length two, containing the paths to seqs and seqlist objects (e.g., seq_data = c("./seqs.rds", "./seqlist.rds")).
-#' @param motifs  vector of motifs (e.g., c("ACGTAGT", "GTACAAG")) or an integer specifying the k-mers to be used (e.g., 7 for all 7-mers).
+#' @param exp numerical gene expression (or other relevant measure) matrix (rows = genes, columns = samples/cells) or character string specifying file path to expression data (saved in .rds format). Input should NOT be log-transformed. Examples include raw counts (default), CPM, or RPKM values.
+#' @param seq_data character string, dataframe, or vector; path to a bioMart output (decompressed .fasta file); a dataframe containing gene_name/gene_IDs, sequences, and sequence lengths;
+#' or a character vector containing the paths to 'seqs' and 'seqlist' objects (e.g., seq_data = c("./seqs.rds", "./seqlist.rds")).
+#' @param motifs vector with motifs, e.g., c("ACGTAGT", "GTACAAG"), or an integer specifying the k-mers to be used, e.g., 7 for all 7-mers.
 #' A motif is specified as a regular expression on the alphabet {A,C,G,T}.
 #' @param out_path character string specifying directory to save .rds files in. Default is current working directory.
-#' @param exp_type character string specifying type of data to normalize and/or scale. Input can be "count" (default) or "CPM" (counts per million; TPM can also be used).
-#' @param save_processed_exp logical, whether to also save the normalized and scaled matrix. Default is FALSE.
+#' @param exp_type character string specifying type of data to normalize and/or scale. Input can be "count" (default) or "CPM" (counts per million; TPM/RPKM can also be used here).
+#' @param save_processed_exp logical, whether to also save the normalized and scaled expression matrix. Default is FALSE.
 #' @param process_all logical, whether to process all data (expression, sequence, and motif data) or only computing the sample-specific fold-change ranks.
+#' Set process_all = FALSE if sequence and motif data has already been processed once, e.g., if you are evaluating the same motif hypotheses across new expression data.
 #' @param seq_gene_id character specifying the gene ID that should be used to build the sequence list. The IDs has to match the IDs in the gene/transcript expression matrix.
-#' The input can be "gsym" (gene symbol, default), "gid" (ensembl gene id), "tid" (ensembl transcript id). Only relevant to specify when using a bioMart file-path as input.
+#' The input can be "gsym" (gene symbol, default), "gid" (ensembl gene id), "tid" (ensembl transcript id). Only relevant to specify when using a bioMart fasta file as input.
 #' @param seq_min_length integer, minimum sequence length to include in the seqs object and list. Default is 20.
 #' @param seq_max_length integer, maximum sequence length to include in the seqs object and list. Default is 10,000.
-#' @param control_exp numerical vector or matrix used for FC-score ranking, containing expression values for a user-defined control setting(s), matching the row ordering of the 'exp' input (vector) as well as the column ordering (matrix). If NULL (default), the median gene expressions are used instead.
+#' @param control_exp optional numerical vector or matrix used for fold-change score calculation and ranking. Used when expression values for a user-defined control setting(s) is available. It should match the row ordering of the 'exp' input (vector) as well as the column ordering (matrix). If NULL (default), the median gene expressions of 'exp' are used instead.
 #' @param approx_motif_prob logical, whether to use a binomial approximation to compute motif probabilities (default is FALSE).
 #' @param cores integer, number of cores to use for parallel processing when computing motif probabilities (default is all available cores).
 #'
-#' @return process_raw_input() calculates and saves the Fold-change ranks, processed sequence data and sequence-specific motif probabilities, and returns a list containing all file paths; list(FC_rank_path, seqs_path, seqlist_path, motif_prob_path).
+#' @return process_raw_input() calculates and saves the fold-change ranks, processed sequence data and sequence-specific motif probabilities, and returns a list containing all file paths; list(FC_rank_path, seqs_path, seqlist_path, motif_prob_path).
 #' @export
 #'
 #' @examples
@@ -35,7 +36,7 @@ process_raw_input <- function(exp, seq_data, motifs, out_path = "./",
                               seq_gene_id = "gsym", seq_min_length = 20, seq_max_length = 10000,
                               control_exp = NULL, approx_motif_prob = F, cores = parallel::detectCores()){
   # initial checks
-  if(is.data.frame(exp) + is.matrix(exp) + is.character(exp) == 0) stop("expression data input should be either a data frame, matrix, or character string specifying an .rds input file" , call. = F)
+  if(is.data.frame(exp) + is.matrix(exp) + is.character(exp) == 0) stop("expression data input should be either a dataframe, matrix, or character string specifying an .rds input file" , call. = F)
 
   ## Process expression data ##
   if (is.character(exp)){
@@ -80,29 +81,28 @@ process_raw_input <- function(exp, seq_data, motifs, out_path = "./",
                    length(rownames(exp)) - length(intersect(seqs$gid, rownames(exp))), " genes will be removed from the expression data and fold-change calculation."))
 
       # check that paths are given in correct order
-      if (!is.data.frame(seqs)) stop("seq_data[1] input path should be to a data frame, please check that paths to sequence and sequence list objects haven't been swapped.", call. = F)
+      if (!is.data.frame(seqs)) stop("seq_data[1] input path should be a dataframe, please check that paths to sequence and sequence list objects haven't been swapped.", call. = F)
     }
     motif_prob_path <- bayesReact::motif_prob(motifs, seqs, seqlist, paths = F,
                                               cores = cores, out_path = out_path,
-                                              binom_approx = approx_motif_prob, include_counts = !approx_motif_prob) # UPDATE include_counts IF FASTER APPROACH IS ADDED TO motif_prob()!!!
+                                              binom_approx = approx_motif_prob, include_counts = T) # update include_counts if changes are made to the approx. model in motif_prob()
 
     cat("Successfully processed sequence-specific motif probabilities. \n")
   }
   gene_set <- intersect(seqs$gid, rownames(exp))
   exp <- exp[gene_set,]
 
-  # generate fold-change based sequence ranks
+  # generate fold-change (FC) based sequence ranks
   FC_rank_path <- list(FC_rank_path = bayesReact::rank_seq(exp, data_type = "norm_scale_exp", path = out_path))
-  # If only processing expression data, return file path for the FC-based sequence ranks
+  # if only processing expression data, return file path for the FC-based sequence ranks
   if (process_all == F) {
-    warning("Only fold-change ranks were computed. Please set process_all = TRUE to process sequence and motif data. \nPlease ensure that you only included genes/transcripts for fold-change calculation, which are also present in the sequence data.")
+    warning("Only fold-change ranks were computed. Please set process_all = TRUE to process sequence and motif data. \nPlease ensure to only included genes/transcripts for fold-change calculation that are also present in the sequence data.")
     return(FC_rank_path)
   }
   cat("Successfully computed fold-change ranks. \n")
 
-  # Save file paths for later use
+  # save file paths for later use
   file_paths_out <- c(FC_rank_path, seq_paths, motif_prob_path)
-  #saveRDS(file_paths_out, file = paste0(out_path, "data_paths.rds"))
 
   ## Return file paths ##
   return(file_paths_out)

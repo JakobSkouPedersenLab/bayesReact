@@ -2,11 +2,11 @@
 #' @description
 #' This function generate the appropriate input for the STAN model used to estimate motif activity.
 #'
-#' @param in_seq_motif_data list containing FC_rank (seq X sample), motif_probs (1 X seq), motif_counts (1 X seq).
+#' @param in_seq_motif_data list containing FC_rank (seq X sample/cell), motif_probs (1 X seq), motif_counts (1 X seq).
 #' @param threshold_motif_prob numeric value specifying the minimum threshold used to truncate the probability of observing a motif at least once in a sequence. If set to NULL, no threshold is used.
 #' @param threshold_motif_count integer specifying the maximum threshold used to truncate the number of times a motif is observed in a sequence. If set to NULL, no threshold is used.
 #'
-#' @return List containing all necessary variables used as input for the STAN model.
+#' @return list containing all necessary variables used as input for the STAN model.
 #' @export
 #'
 #' @examples
@@ -16,11 +16,11 @@
 #' }
 #'
 prep_model_input <- function(in_seq_motif_data, threshold_motif_prob = 1e-10, threshold_motif_count = 2){
-  # Data dimensions
+  # data dimensions
   nr_obs <- dim(in_seq_motif_data$FC_rank)[[2]]
   nr_seqs <- dim(in_seq_motif_data$FC_rank)[[1]]
 
-  # Re-scale total sequence-interval to have length one [0, 1] across which events/motifs occur
+  # re-scale total sequence interval to have length one [0, 1] across which events/motifs occur
   if (is.numeric(threshold_motif_prob)) {
     l_vector <- (-log1p(-ifelse(in_seq_motif_data$motif_probs < threshold_motif_prob, threshold_motif_prob, in_seq_motif_data$motif_probs)))
   } else{
@@ -36,7 +36,7 @@ prep_model_input <- function(in_seq_motif_data, threshold_motif_prob = 1e-10, th
     l[, 1:nr_obs] <- l_vector
   }
 
-  # Order seqs based on FC for each sample/cell
+  # order seqs based on fold-change score for each sample/cell
   l <- lapply(1:nr_obs, function(c) l[in_seq_motif_data$FC_rank[,c],c])
   l <- do.call(cbind, l)
   l <- rbind(rep(0, times = nr_obs), l) # add initial row due to indexing
@@ -51,9 +51,9 @@ prep_model_input <- function(in_seq_motif_data, threshold_motif_prob = 1e-10, th
   n <- lapply(1:nr_obs, function(c) in_seq_motif_data$motif_counts[in_seq_motif_data$FC_rank[,c]][s[,c]])
   n <- do.call(cbind, n) # use to include intervals/seqs the number of times motif occurs
 
-  s <- s+1 #  Indexing matching L
+  s <- s+1 # indexing matching L
 
-  # Create initial list
+  # create initial list
   d_list <- list(
     N = nr_seqs +1,
     K = dim(s)[[1]],
@@ -64,12 +64,12 @@ prep_model_input <- function(in_seq_motif_data, threshold_motif_prob = 1e-10, th
     n = n[,1:nr_obs, drop = F]
   )
 
-  ########## generate model input data ##########
+  ########## Generate model input data ##########
 
   r <- lapply(1:d_list$C, function(c) (d_list$L[d_list$s[,c],c] + d_list$L[d_list$s[,c]-1, c])/2)
   r <- do.call(cbind, r)
 
-  ## pre-compute partial log-likelihood for each sample/cell for speed-up ##
+  ## Pre-compute partial log-likelihood for each sample/cell for speed-up ##
 
   # precompute sum log length intervals
   l <- lapply(1:d_list$C, function(c) d_list$l[d_list$s[,c],c])
