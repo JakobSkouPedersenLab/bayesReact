@@ -38,6 +38,8 @@ motif screens to detect surprising motif clustering in experimentally
 ranked sequences while accounting for sequence length and nucleotide
 composition.
 
+Developmental version is available at: https://github.com/astamr/bayesReact.
+
 ## Installing bayesReact
 
 ### Installation with Conda
