@@ -17,6 +17,7 @@ Stan](https://img.shields.io/badge/language-Stan-BC1B28?style=flat&labelColor=gr
 [![License: GPL
 v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![R-CMD-check](https://github.com/astamr/bayesReact/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/astamr/bayesReact/actions/workflows/R-CMD-check.yaml)
+[![DOI](https://zenodo.org/badge/1133740704.svg)](https://doi.org/10.5281/zenodo.18236089)
 <!-- badges: end -->
 
 bayesReact (BAYESian modeling of Regular Expression ACTivity) is a tool
