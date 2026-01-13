@@ -84,7 +84,7 @@ devtools::install_github("astamr/bayesReact", dependencies = T)
 ## User guide and bayesReact overview
 
 Please use the tutorial
-[/inst/tutorial_bayesReact.html](https://html-preview.github.io/?url=https://github.com/astamr/bayesReact/blob/master/inst/tutorial_bayesReact.html)
+[/docs/tutorial_bayesReact.html](https://astamr.github.io/bayesReact/tutorial_bayesReact.html)
 to get started with bayesReact.
 
 Below is an overview of all the functions and scripts included in the R
