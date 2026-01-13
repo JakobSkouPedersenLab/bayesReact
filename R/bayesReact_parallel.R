@@ -4,7 +4,7 @@
 #' bayesReact_parallel() performs data partitioning and currently utilizes the Slurm job scheduler, and is thus designed to be run on a computer cluster.
 #'
 #'
-#' @param lst_data list containing file paths to input data or data frames, e.g.: list(FC_rank = "./FC_rank_date.rds", motif_probs = "./seqXmot_probs.rds", motif_counts = "./seqXmot_counts.rds").
+#' @param lst_data list containing file paths to input data or data frames, e.g.: list(FC_rank = "./FC_rank_data.rds", motif_probs = "./seqXmot_probs.rds", motif_counts = "./seqXmot_counts.rds").
 #' To generate input data, please see the process_raw_input() function.
 #' @param out_path full path to output directory (e.g., "./out/path/"). If the output directory does not exist initially, it will be created.
 #' @param out_name name of output file. Default is "motif_activity".
@@ -22,7 +22,7 @@
 #' @param MCMC_warmup initial iterations to be discarded for each chain as warm-up/burn-in.
 #' @param MCMC_cores number of cores, default is equal to the number of chains (which is the maximum number of cores that can be utilized by STAN's MCMC sampler).
 #' @param MCMC_keep_warmup whether to keep the warm-up iterations or not.
-#' @param posterior_approx algorithm for approximating the posterior distribution: "MCMC" (default) or "Laplace" (faster but slightly less accurate approximation).
+#' @param posterior_approx algorithm for approximating the posterior distribution: "MCMC" (default) or "Laplace" (faster but slightly less accurate uncertainties).
 #' Only works with model = "bayesReact" and output_type = "activity".
 #'
 #' @return The function returns the path to the output file, which is saved in the 'out_path' and named 'out_name'. If output_type = "activity", the output contains a matrix of dimension motifs X cells/samples with motif activities.

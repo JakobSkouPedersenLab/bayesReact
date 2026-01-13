@@ -4,7 +4,7 @@
 #' bayesReact_core can be run locally and used for motif activity inference for a set of motifs across a small data set.
 #' For larger data sets, please consider bayesReact_parallel().
 #'
-#' @param lst_data list containing file paths or data frames, e.g.: list(FC_rank = "./FC_rank_date.rds", motif_probs = "./seqXmot_probs.rds", motif_counts = "./seqXmot_counts.rds").
+#' @param lst_data list containing file paths or data frames, e.g.: list(FC_rank = "./FC_rank_data.rds", motif_probs = "./seqXmot_probs.rds", motif_counts = "./seqXmot_counts.rds").
 #' @param threshold_motif_prob numeric value specifying the minimum threshold used to truncate the probability of observing a motif at least once in a sequence. If set to NULL, no threshold is used.
 #' @param threshold_motif_count integer specifying the maximum threshold used to truncate the number of times a motif is observed in a sequence. If set to NULL, no threshold is used.
 #' @param model A character string specifying the model to be used for inference:
@@ -18,7 +18,7 @@
 #' @param MCMC_cores number of cores, default is equal to the number of chains (which is the maximum number of cores that can be utilized by STAN's MCMC sampler).
 #' Alternatively consider parallel::detectCores().
 #' @param MCMC_keep_warmup whether to keep the warm-up iterations or not.
-#' @param posterior_approx algorithm for approximating the posterior distribution: "MCMC" (default) or "Laplace" (faster but slightly less accurate approximation).
+#' @param posterior_approx algorithm for approximating the posterior distribution: "MCMC" (default) or "Laplace" (faster but slightly less accurate uncertainties).
 #' Only works with model = "bayesReact" and output_type = "activity" or "full_model".
 #' @param parallel this parameter should never be changed manually and is used internally by bayesReact_parallel().
 #'

@@ -16,7 +16,6 @@ R](https://img.shields.io/badge/language-R-blue)](https://www.r-project.org/)
 Stan](https://img.shields.io/badge/language-Stan-BC1B28?style=flat&labelColor=grey)](https://mc-stan.org/users/interfaces/rstan)
 [![License: GPL
 v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue)](https://www.tidyverse.org/lifecycle/)
 [![R-CMD-check](https://github.com/astamr/bayesReact/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/astamr/bayesReact/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 

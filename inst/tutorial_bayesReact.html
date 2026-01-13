@@ -9,9 +9,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Asta M. R." />
 
-<meta name="date" content="2024-09-09" />
+<meta name="date" content="2026-01-13" />
 
 <title>bayesReact tutorial</title>
 
@@ -1622,8 +1621,7 @@ display: none;
 
 
 <h1 class="title toc-ignore">bayesReact tutorial</h1>
-<h4 class="author">Asta M. R.</h4>
-<h4 class="date">2024-09-09</h4>
+<h4 class="date">2026-01-13</h4>
 
 </div>
 
@@ -1652,12 +1650,14 @@ in the following <a href="https://github.com/muhligs/miReact/blob/master/makingU
 <p>Motif(s) are provided as a vector of regular expression(s) on the
 alphabet A, C, G, T. For example, the motif “ACACTCC” is a target site
 for miR-122-5p, and “ACA[CT]TCC” allows for either C or T at the fourth
-position.</p>
+position. It is also possible to provide all k-mers of interest as motif
+input by specifying the k-mer length (integer), e.g., 7 entails all
+7-mers are evaluated (M = 4^7 = 16,384 motifs).</p>
 <p><strong>Expression data</strong></p>
 <p>Expression data is provided as a matrix with genes as rows and
 conditions (cells or samples) as columns. It is important that the
-rownames of the expression matrix should match the sequence names used
-from the fasta file.</p>
+rownames of the expression matrix match the sequence names used from the
+fasta file (or sequence dataframe).</p>
 <p><strong>Generate fold-change ranks and calculate sequence specific
 motif probabilities (SSP)</strong></p>
 <p><code>bayesReact::process_raw_input()</code> handles the initial data
@@ -1667,6 +1667,7 @@ each sequence given its length and nucleotide composition (SSP
 values).</p>
 <pre class="r"><code># Define a set of miRNA target-sites:
 mots &lt;- c(&quot;ACACTCC&quot;, &quot;GTGCCTT&quot;) # Target-sites for miR-122-5p and miR-124-3p (assuming seed-site at position 2-8 of mature miRNAs)
+#mots &lt;- 7 # Specifies all 7-mer motifs as input
 
 # Load in the expression data (genes x cells/samples matrix)
 # Very important that the rownames of the expression matrix match the sequence names in the fasta file.
@@ -1681,14 +1682,33 @@ processed_output_paths &lt;- bayesReact::process_raw_input(exp_data, seq_data = 
                                       )
 # Running &#39;process_raw_input()&#39; may be impossible locally, if you are working with a large set of motifs.
 # SSP values only needs to be computed once per sequence and motif set, and can be reused for multiple (expression) datasets.</code></pre>
-<p>The ranking of sequences is done based on their fold-change scores,
-where the scores are defined as log2(exp of gene i in condition j) -
-log2(median exp of gene i across all conditions). Using the median
+<p>The ranking of sequences is done based on their fold-change (FC)
+scores, where the scores are defined as log2(exp of gene i in condition
+j) - log2(median exp of gene i across all conditions). Using the median
 expression of each gene as a pseudo-normal condition makes the normal
 setting dependent on the provided expression data, and impacts the
-interpretation of the activity output. Soon, the user may also define
-their own normal/control conditions, e.g., based on expression data from
-a control/healthy condition.</p>
+interpretation of the activity output.</p>
+<p>It is also possible to provide a user-defined control-setting, when
+paired case-control data is available:</p>
+<pre class="r"><code># Define a set of miRNA target-sites:
+mots &lt;- c(&quot;ACACTCC&quot;, &quot;GTGCCTT&quot;)
+
+# Load in the expression data (genes x cells/samples matrix)
+exp_data &lt;- readRDS(&quot;path/to/exp.rds&quot;)
+
+# Load the control data (genes x cells/samples matrix)
+# Genes should match &#39;exp_data&#39; and should either be provided as a vector (single control condition) or
+# as a matrix with one control-setting matching each column in &#39;exp_data&#39; (multiple control conditions).
+control_exp_data &lt;- readRDS(&quot;path/to/control_exp.rds&quot;)
+
+# Then process all the data
+processed_output_paths &lt;- bayesReact::process_raw_input(exp_data, seq_data = &quot;/path/to/seqs.fasta&quot;, 
+                          motifs = mots, 
+                          out_path = &quot;./&quot;,    
+                          exp_type = &quot;count&quot;, 
+                          seq_gene_id = &quot;gid&quot; 
+                          control_exp = control_exp_data # Control condition(s) used to compute FC scores in instances of available case-control data
+                          )</code></pre>
 </div>
 <div id="step-2-inferring-motif-activities" class="section level1">
 <h1>Step 2: Inferring motif activities</h1>
@@ -1710,6 +1730,11 @@ act_out &lt;- bayesReact::bayesReact_core(in_data, output_type = &quot;activity_
 
 # Save the output
 saveRDS(act_out, &quot;path/to/output.rds&quot;)</code></pre>
+<p>If you have few computational resources available, you may also
+consider using the fast Laplace approximation of the posterior
+instead:</p>
+<pre class="r"><code># Run bayesReact
+act_out &lt;- bayesReact::bayesReact_core(in_data, output_type = &quot;activity&quot;, posterior_approx = &quot;Laplace&quot;) # This outputs only the activity scores and is less information-rich.</code></pre>
 </div>
 <div id="running-bayesreact-on-a-computer-cluster" class="section level2">
 <h2>Running bayesReact on a computer cluster</h2>
@@ -1717,7 +1742,8 @@ saveRDS(act_out, &quot;path/to/output.rds&quot;)</code></pre>
 found here <a href="https://github.com/astamr/bayesReact/blob/master/inst/run_bayesReact_parallel_example.sh">/inst/run_bayesReact_parallel_example.sh</a>.
 If relevant, it is possible to adjust the resources used for each job,
 and the size of the parallel partitions, as well as specifications for
-the MCMC sampling such as the number of chains and iterations.</p>
+the MCMC sampling such as the number of chains, iterations, and whether
+to use Laplace approximation.</p>
 </div>
 <div id="running-bayesreact-on-test-data-and-an-initial-look-at-the-output" class="section level2">
 <h2>Running bayesReact on test data and an initial look at the
@@ -1771,7 +1797,7 @@ head(act_out$motif_a_mean) # Posterior mean of &#39;a_{c,m}&#39; (similar to an 
 head(act_out$motif_a_sd) # Posterior standard deviation (sd) of &#39;a_{c,m}&#39;
 head(act_out$motif_a_CI_lower) # Lower bound of 80% credible interval (or user specified CI)
 head(act_out$motif_a_CI_upper) # Upper bound of 80% credible interval
-head(act_out$motif_post_prob) # Posterior probability of the of &#39;a_{c,m}&#39; being smaller or equal to 0 under a normal approximation of the posterior MCMC samples, with a mean equal to the absolute value of the posterior mean and sd equal to the posterior sd (please see the paper for more information).
+head(act_out$motif_post_prob) # Posterior probability of the of &#39;a_{c,m}&#39; being smaller or equal to 0 under a normal approximation of the posterior MCMC samples, with a mean equal to the absolute value of the posterior mean and sd equal to the posterior sd (please see the method paper for more information).
 # a_{c,m} = 0 corresponds to the null model of no motif clustering across the ranked sequences.
 
 # Model diagnostics
