@@ -64,7 +64,7 @@ In an R session you can then install Regmex and bayesReact:
 
 ``` r
 devtools::install_github("muhligs/Regmex", dependencies = F)
-devtools::install_github("astamr/bayesReact", dependencies = F)
+devtools::install_github("JakobSkouPedersenLab/bayesReact", dependencies = F)
 ```
 
 ### Installation through Devtools
@@ -81,7 +81,7 @@ if (!requireNamespace("devtools", quietly = TRUE)) {
     install.packages("devtools")
 }
 
-devtools::install_github("astamr/bayesReact", dependencies = T)
+devtools::install_github("JakobSkouPedersenLab/bayesReact", dependencies = T)
 ```
 
 ## User guide and bayesReact overview
