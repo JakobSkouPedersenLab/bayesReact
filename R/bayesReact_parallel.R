@@ -43,7 +43,7 @@
 #'
 bayesReact_parallel <- function(lst_data, out_path, out_name = "motif_activity", save_as_bigmat = F, account, samples_per_partition = 20,
                                 threshold_motif_prob = 1e-10, threshold_motif_count = 2,
-                                model = "bayesReact", output_type = "activity_summary", CI = c(0.10, 0.90), #CI = c(0.005, 0.995),
+                                model = "bayesReact", output_type = "activity_summary", CI = c(0.10, 0.90),
                                 MCMC_iterations = 3000, MCMC_chains = 3, MCMC_warmup = 500,
                                 MCMC_cores = MCMC_chains, MCMC_keep_warmup = F, posterior_approx = "MCMC"){
 

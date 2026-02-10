@@ -7,16 +7,16 @@
 norm_scale_seq(exp, data_type = "count", save_rds = T, path = "./")
 }
 \arguments{
-\item{exp}{matrix, raw expression matrix (Rows = genes, columns = samples). CPM matrix can also be used, however, ensure that the data is NOT on the log-scale (?).}
+\item{exp}{matrix, raw expression count matrix (rows = genes, columns = samples/cells). CPM/RPKM matrix can also be used, however, ensure that the data is NOT on the log-scale.}
 
-\item{data_type}{character, type of data to normalize and/or scale. Input can be "count" (default) or "CPM" (counts per million; TPM can also be used).}
+\item{data_type}{character, type of data to normalize and/or scale. Input can be "count" (default) or "CPM" (counts per million; TPM/RPKM can also be used).}
 
 \item{save_rds}{logical, whether to save the normalized and scaled matrix as an .rds file. Default is TRUE.}
 
 \item{path}{character, directory to save .rds file in. Default is current working directory.}
 }
 \value{
-Normalized and scaled expression matrix (Rows = genes, columns = samples).
+normalized and scaled expression matrix (rows = genes, columns = samples).
 }
 \description{
 Normalize total sample/cell expression to 1, multiply by median, and log2 transform.
@@ -24,10 +24,10 @@ Normalize total sample/cell expression to 1, multiply by median, and log2 transf
 \examples{
 \dontrun{
 norm_scale_exp <- norm_scale_seq(exp, save_rds = F)
-# Returns norm and scaled exp matrix.
+# returns normalized and scaled exp matrix.
 
 norm_scale_exp_path <- norm_scale_seq(exp, save_rds = T)
-# Saves norm matrix and returns path to .rds file.
+# saves normalized matrix and returns path to .rds file.
 }
 
 }

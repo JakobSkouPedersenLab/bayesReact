@@ -2,7 +2,7 @@
 % Please edit documentation in R/build_seq_list.R
 \name{build_seq_list}
 \alias{build_seq_list}
-\title{Function to process species-specififc sequence data and generate the seqs and seqList objects}
+\title{Function to process species-specific sequence data and generate the seqs and seqList objects}
 \usage{
 build_seq_list(
   seq_in,
@@ -14,23 +14,23 @@ build_seq_list(
 )
 }
 \arguments{
-\item{seq_in}{character or data frame, path to a bioMart output-file (decompressed .tsv file) or a data frame containing gene_name/gene_ID, sequences and sequence length.}
+\item{seq_in}{character or dataframe, path to a bioMart output (decompressed .fasta file) or a dataframe containing gene_name/gene_IDs, sequences and sequence lengths.}
 
 \item{out_path}{character, path to save seqs and seqList objects as .rds files. Default is current working directory.}
 
-\item{gene_id}{character specifying the gene ID, which should be used (and this HAS to match the IDs in the gene/transcript expression matrix!). The input can be "gsym" (gene symbol, default), "gid" (ensembl gene id), "tid" (ensembl transcript id). Only relevant to specify when using a bioMart file-path as input.}
+\item{gene_id}{character specifying the gene ID that should be used (this HAS to match the IDs in the gene/transcript expression matrix). The input can be "gsym" (gene symbol, default), "gid" (ensembl gene id), "tid" (ensembl transcript id). Only relevant to specify when using a bioMart file as input.}
 
 \item{min_length}{integer, minimum sequence length to include in the seqs object. Default is 20.}
 
 \item{max_length}{integer, maximum sequence length to include in the seqs object. Default is 10,000.}
 
-\item{one_seq_per_gene_id}{logical, if TRUE (default), only the longest sequence per gene will be included in the seqs object if a FASTA file is provided. Setting this parameter to FALSE is relevant when considering multiple transcripts per gene or when performing manual filtering of sequences.}
+\item{one_seq_per_gene_id}{logical, if TRUE (default) only the longest sequence per gene will be included in the seqs object if a FASTA file is provided. Setting this parameter to FALSE is relevant when considering multiple transcripts per gene or when performing manual filtering of sequences.}
 }
 \value{
 Saves seqs and seqList objects as .rds files in the specified out_path.
 }
 \description{
-Function using a path to a fasta file or seqs data frame to generate the seqs and seqList objects needed by Regmex to evaluate motif counts and sequence-specific probabilities, and saves the objects as independent .rds files. To obtain sequences from bioMart, please see the tutorial provided as part of the miReact package (https://github.com/muhligs/miReact/blob/master/makingUtrsForAdditionalSpecies.pdf).
+Function using path to a fasta file or seqs dataframe to generate the seqs and seqList objects needed by Regmex to evaluate motif counts and sequence-specific probabilities, and saves the objects as independent .rds files. To obtain sequences from bioMart, please see the tutorial provided as part of the miReact package (https://github.com/muhligs/miReact/blob/master/makingUtrsForAdditionalSpecies.pdf).
 }
 \examples{
 \dontrun{

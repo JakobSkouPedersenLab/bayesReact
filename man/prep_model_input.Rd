@@ -11,14 +11,14 @@ prep_model_input(
 )
 }
 \arguments{
-\item{in_seq_motif_data}{list containing FC_rank (seq X sample), motif_probs (1 X seq), motif_counts (1 X seq).}
+\item{in_seq_motif_data}{list containing FC_rank (seq X sample/cell), motif_probs (1 X seq), motif_counts (1 X seq).}
 
 \item{threshold_motif_prob}{numeric value specifying the minimum threshold used to truncate the probability of observing a motif at least once in a sequence. If set to NULL, no threshold is used.}
 
 \item{threshold_motif_count}{integer specifying the maximum threshold used to truncate the number of times a motif is observed in a sequence. If set to NULL, no threshold is used.}
 }
 \value{
-List containing all necessary variables used as input for the STAN model.
+list containing all necessary variables used as input for the STAN model.
 }
 \description{
 This function generate the appropriate input for the STAN model used to estimate motif activity.

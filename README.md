@@ -17,6 +17,7 @@ Stan](https://img.shields.io/badge/language-Stan-BC1B28?style=flat&labelColor=gr
 [![License: GPL
 v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![R-CMD-check](https://github.com/astamr/bayesReact/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/astamr/bayesReact/actions/workflows/R-CMD-check.yaml)
+[![DOI](https://zenodo.org/badge/1133740704.svg)](https://doi.org/10.5281/zenodo.18236089)
 <!-- badges: end -->
 
 bayesReact (BAYESian modeling of Regular Expression ACTivity) is a tool
@@ -36,6 +37,14 @@ mechanisms in conditions where they are unobserved, and for de-novo
 motif screens to detect surprising motif clustering in experimentally
 ranked sequences while accounting for sequence length and nucleotide
 composition.
+
+<p align="center">
+
+<img src="docs/Graphical_abstract.png" alt="abstract" />
+</p>
+
+Stable version is available at:
+<https://github.com/JakobSkouPedersenLab/bayesReact>.
 
 ## Installing bayesReact
 
@@ -133,7 +142,8 @@ To summarize:
 A detailed description of the underlying model developed for and used in
 bayesReact, can be found here:
 
-Rasmussen, A. M., Bouchard-Côté, A., & Pedersen, J. S. (2024).
+Rasmussen, A. M., Bouchard-Côté, A., & Pedersen, J. S. (2026).
 bayesReact: Expression-coupled regulatory motif analysis detects
-microRNA activity in cancer and at the single cell level. *bioRxiv*,
-2024-09. Preprint, doi: <https://doi.org/10.1101/2024.09.10.612047>.
+microRNA activity across cancers, tissues, and at the single-cell level.
+*Nucleic Acids Research*, Volume 54, Issue 4, 27 February 2026, gkag072,
+<https://doi.org/10.1093/nar/gkag072>.

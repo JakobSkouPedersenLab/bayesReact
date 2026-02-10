@@ -25,7 +25,7 @@ bayesReact_parallel(
 )
 }
 \arguments{
-\item{lst_data}{list containing file paths to input data or data frames, e.g.: list(FC_rank = "./FC_rank_date.rds", motif_probs = "./seqXmot_probs.rds", motif_counts = "./seqXmot_counts.rds").
+\item{lst_data}{list containing file paths to input data or data frames, e.g.: list(FC_rank = "./FC_rank_data.rds", motif_probs = "./seqXmot_probs.rds", motif_counts = "./seqXmot_counts.rds").
 To generate input data, please see the process_raw_input() function.}
 
 \item{out_path}{full path to output directory (e.g., "./out/path/"). If the output directory does not exist initially, it will be created.}
@@ -36,13 +36,13 @@ To generate input data, please see the process_raw_input() function.}
 
 \item{account}{Slurm project account or individual user account used to track resources for parallel jobs.}
 
-\item{samples_per_partition}{number of samples to be processed in each parallel job. Default is 20. Smaller values will result in more jobs that individually will run faster, however, more jobs needs to be allocated resources by the Slurm queuing system.}
+\item{samples_per_partition}{number of samples to be included in each parallel job. Default is 20. Smaller values will result in more jobs that individually will run faster, however, more jobs needs to be allocated resources by the Slurm queuing system.}
 
 \item{threshold_motif_prob}{numeric value specifying the minimum threshold used to truncate the probability of observing a motif at least once in a sequence. If set to NULL, no threshold is used.}
 
 \item{threshold_motif_count}{integer specifying the maximum threshold used to truncate the number of times a motif is observed in a sequence. If set to NULL, no threshold is used.}
 
-\item{model}{A character string specifying the model to be used for inference:
+\item{model}{a character string specifying the model to be used for inference:
 Either "bayesReact" (default) or "BF" (Bayes Factor; to compare the performance of the beta model against the uniform null model).}
 
 \item{output_type}{type of output to be returned; either "activity" (only outputs activity score), or "activity_summary" (default; outputs activity score, posterior mean and sd for the underlying activity parameter 'a', log P(|a| <= 0 | data), credible intervals, and simple model diagnostics).}
@@ -53,17 +53,17 @@ Either "bayesReact" (default) or "BF" (Bayes Factor; to compare the performance 
 
 \item{MCMC_chains}{number of independent MCMC chains to be used.}
 
-\item{MCMC_warmup}{initial iterations to be discarded for each chain as warm-up/burn-in.}
+\item{MCMC_warmup}{initial iterations to be discarded for each chain as warm-up.}
 
 \item{MCMC_cores}{number of cores, default is equal to the number of chains (which is the maximum number of cores that can be utilized by STAN's MCMC sampler).}
 
 \item{MCMC_keep_warmup}{whether to keep the warm-up iterations or not.}
 
-\item{posterior_approx}{algorithm for approximating the posterior distribution: "MCMC" (default) or "Laplace" (faster but slightly less accurate approximation).
-Only works with model = "bayesReact" and output_type = "activity".}
+\item{posterior_approx}{algorithm for approximating the posterior distribution: "MCMC" (default) or "Laplace" (faster but slightly less accurate uncertainties).
+"Laplace" only works with model = "bayesReact" and output_type = "activity".}
 }
 \value{
-The function returns the path to the output file, which is saved in the 'out_path' and named 'out_name'. If output_type = "activity", the output contains a matrix of dimension motifs X cells/samples with motif activities.
+The function returns the path to the output file(s), which is saved in 'out_path' and named 'out_name'. If output_type = "activity", the output contains a matrix of dimension motifs X cells/samples with motif activities.
 If output_type = "activity_summary", the output contains a list with the motif X cell/sample matrices: "motif_activity" (the motif activity estimates), "motif_post_prob" (the posterior probability of log P(|a| <= 0 | data) + log(2)),
 "motif_a_mean" (posterior mean of 'a'), "motif_a_sd" (posterior standard deviation of 'a'),
 "motif_a_CI_lower" (lower bound of credible interval (CI) for the underlying activity parameter 'a'), motif_a_CI_upper" (upper bound of CI),
@@ -71,7 +71,7 @@ If output_type = "activity_summary", the output contains a list with the motif X
 If model = "BF", then the output also contains the "motif_model_lBF" matrix (log Bayes Factor (BF) values).
 }
 \description{
-This function is a wrapper for bayesReact_core(), allowing for motif activity inference on large single cell atlases.
+This function is a wrapper for bayesReact_core(), allowing for motif activity inference on large data sizes, including single-cell atlases.
 bayesReact_parallel() performs data partitioning and currently utilizes the Slurm job scheduler, and is thus designed to be run on a computer cluster.
 }
 \examples{

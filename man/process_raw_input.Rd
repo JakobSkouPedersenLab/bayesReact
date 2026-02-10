@@ -21,42 +21,43 @@ process_raw_input(
 )
 }
 \arguments{
-\item{exp}{numerical gene expression (or other relevant measure) matrix (rows = genes, columns = samples) or character string specifying file path to expression data (saved in .rds format). Input should NOT be log-transformed. Examples include raw counts (default), CPM, or TPM values.}
+\item{exp}{numerical gene expression (or other relevant measure) matrix (rows = genes, columns = samples/cells) or character string specifying file path to expression data (saved in .rds format). Input should NOT be log-transformed. Examples include raw counts (default), CPM, or RPKM values.}
 
-\item{seq_data}{character string, data frame or vector; path to a bioMart output-file (decompressed .fasta file); a data frame containing gene_name/gene_ID, sequences and sequence length;
-or a character vector of length two, containing the paths to seqs and seqlist objects (e.g., seq_data = c("./seqs.rds", "./seqlist.rds")).}
+\item{seq_data}{character string, dataframe, or vector; path to a bioMart output (decompressed .fasta file); a dataframe containing gene_name/gene_IDs, sequences, and sequence lengths;
+or a character vector containing the paths to 'seqs' and 'seqlist' objects (e.g., seq_data = c("./seqs.rds", "./seqlist.rds")).}
 
-\item{motifs}{vector of motifs (e.g., c("ACGTAGT", "GTACAAG")) or an integer specifying the k-mers to be used (e.g., 7 for all 7-mers).
+\item{motifs}{vector with motifs, e.g., c("ACGTAGT", "GTACAAG"), or an integer specifying the k-mers to be used, e.g., 7 for all 7-mers.
 A motif is specified as a regular expression on the alphabet {A,C,G,T}.}
 
 \item{out_path}{character string specifying directory to save .rds files in. Default is current working directory.}
 
-\item{exp_type}{character string specifying type of data to normalize and/or scale. Input can be "count" (default) or "CPM" (counts per million; TPM can also be used).}
+\item{exp_type}{character string specifying type of data to normalize and/or scale. Input can be "count" (default) or "CPM" (counts per million; TPM/RPKM can also be used here).}
 
-\item{save_processed_exp}{logical, whether to also save the normalized and scaled matrix. Default is FALSE.}
+\item{save_processed_exp}{logical, whether to also save the normalized and scaled expression matrix. Default is FALSE.}
 
-\item{process_all}{logical, whether to process all data (expression, sequence, and motif data) or only computing the sample-specific fold-change ranks.}
+\item{process_all}{logical, whether to process all data (expression, sequence, and motif data) or only computing the sample-specific fold-change ranks.
+Set process_all = FALSE if sequence and motif data has already been processed once, e.g., if you are evaluating the same motif hypotheses across new expression data.}
 
 \item{seq_gene_id}{character specifying the gene ID that should be used to build the sequence list. The IDs has to match the IDs in the gene/transcript expression matrix.
-The input can be "gsym" (gene symbol, default), "gid" (ensembl gene id), "tid" (ensembl transcript id). Only relevant to specify when using a bioMart file-path as input.}
+The input can be "gsym" (gene symbol, default), "gid" (ensembl gene id), "tid" (ensembl transcript id). Only relevant to specify when using a bioMart fasta file as input.}
 
 \item{seq_min_length}{integer, minimum sequence length to include in the seqs object and list. Default is 20.}
 
 \item{seq_max_length}{integer, maximum sequence length to include in the seqs object and list. Default is 10,000.}
 
-\item{control_exp}{numerical vector or matrix used for FC-score ranking, containing expression values for a user-defined control setting(s), matching the row ordering of the 'exp' input (vector) as well as the column ordering (matrix). If NULL (default), the median gene expressions are used instead.}
+\item{control_exp}{optional numerical vector or matrix used for fold-change score calculation and ranking. Used when expression values for a user-defined control setting(s) is available. It should match the row ordering of the 'exp' input (vector) as well as the column ordering (matrix). If NULL (default), the median gene expressions of 'exp' are used instead.}
 
 \item{approx_motif_prob}{logical, whether to use a binomial approximation to compute motif probabilities (default is FALSE).}
 
 \item{cores}{integer, number of cores to use for parallel processing when computing motif probabilities (default is all available cores).}
 }
 \value{
-process_raw_input() calculates and saves the Fold-change ranks, processed sequence data and sequence-specific motif probabilities, and returns a list containing all file paths; list(FC_rank_path, seqs_path, seqlist_path, motif_prob_path).
+process_raw_input() calculates and saves the fold-change ranks, processed sequence data and sequence-specific motif probabilities, and returns a list containing all file paths; list(FC_rank_path, seqs_path, seqlist_path, motif_prob_path).
 }
 \description{
-The function processes raw expression, motif and sequence data, in order to produce sequence ranks and motif probabilities needed for numerical sequence representation.
+The function processes raw expression, motif, and sequence data in order to produce sequence ranks and motif probabilities needed for numerical sequence representation.
 The processed data is used by bayesReact to evaluate motif distribution across the expression (or other continuous measure) ranked sequences.
-The function calls the following sub-functions: norm_scale_seq, rank_seq, build_seq_list, and motif_prob, which can also be run individually.
+The function calls the following sub-functions: norm_scale_seq(), rank_seq(), build_seq_list(), and motif_prob(), which can also be run individually.
 }
 \examples{
 \dontrun{

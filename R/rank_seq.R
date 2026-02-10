@@ -39,7 +39,8 @@ rank_seq <- function(exp, data_type = "count", path = NULL, control_exp = NULL) 
     FC_rank <- sapply(seq_len(ncol(exp)), function(c) {
       order(exp[, c] - medianExp[, c], decreasing = TRUE)
     })
-    # add rownames
+    # add col & rownames
+    colnames(FC_rank) <- colnames(exp)
     rownames(FC_rank) <- rownames(exp)
   }
 

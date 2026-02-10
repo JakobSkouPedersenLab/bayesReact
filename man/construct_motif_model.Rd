@@ -7,7 +7,7 @@
 construct_motif_model(model = "bayesReact")
 }
 \arguments{
-\item{model}{A character string specifying the model to be used for inference:
+\item{model}{a character string specifying the model to be used for inference:
 Either "bayesReact" (default) or "BF" (Bayes Factor; when comparing support for the beta model against the uniform null model).}
 }
 \value{
