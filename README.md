@@ -43,8 +43,7 @@ composition.
 <img src="docs/Graphical_abstract.png" alt="abstract" />
 </p>
 
-Stable version is available at:
-<https://github.com/JakobSkouPedersenLab/bayesReact>.
+Developmental version is available at: https://github.com/astamr/bayesReact.
 
 ## Installing bayesReact
 
